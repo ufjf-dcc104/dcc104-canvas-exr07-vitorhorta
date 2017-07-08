@@ -10,6 +10,7 @@ var tesouros = 0;
 var tesourosConquistados = 0;
 var minas = 0;
 var gameRunning = true;
+var fuel = 100;
 function init(){
   canvas = document.getElementsByTagName('canvas')[0];
   canvas.width = 620;
@@ -69,7 +70,7 @@ function passo(t){
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       pc.mover(map, dt);
       // map.perseguir(pc);
-      map.mover(dt);
+      // map.mover(dt);
       map.desenhar(ctx);
       pc.desenhar(ctx);
       if (map.cells[pc.gy][pc.gx] == 2) {
@@ -77,20 +78,35 @@ function passo(t){
       }
       if (map.cells[pc.gy][pc.gx] == 3) {
           map.nextLevel(pc);
+          fuel = 100;
+
       }
       if (map.cells[pc.gy][pc.gx] == 4) {
-          map.showSecret()
+          map.showSecret();
+          map.alavanca.frame = 2;
+
       }
       if (map.level >= 3) {
           ctx.font = "20px Georgia";
 
           ctx.fillStyle = "darkgreen";
-          ctx.fillText("Parabéns, você venceu!", 150, 200, 400, 300);
+          ctx.fillText("Parabéns, você venceu!", 350, 200, 400, 300);
           gameRunning = false;
 
       }
+      ctx.fillStyle = 'green';
+      ctx.fillRect(450,30,fuel,10);
       contarObjetos(map, pc.gy, pc.gx);
       ctx.fillStyle = "darkgreen";
+      fuel = fuel - 10*dt;
+      if(fuel <= 0){
+          ctx.font = "20px Georgia";
+
+          ctx.fillStyle = "darkgreen";
+          ctx.fillText("Game over, tente novamente!", 350, 200, 400, 300);
+          gameRunning = false;
+
+      }
       // ctx.fillText("Energia", 10, 30);
       // ctx.fillStyle = 'green';
       // ctx.fillRect(10,50,10,20);

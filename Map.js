@@ -89,10 +89,11 @@ Map.prototype.setCells = function (newCells) {
             alavanca.imgKey = 'switch';
             alavanca.SIZE = 2;
             alavanca.poses = [{row: 0, col:0, frames:1, v: 1}];
-            alavanca.imgSizes = [-15,-15,36];
+            alavanca.imgSizes = [-15,-15,38];
             alavanca.images = this.images;
             alavanca.y = (i+0.5)*this.SIZE;
             alavanca.x = (j+0.5)*this.SIZE;
+            this.alavanca = alavanca;
             this.enemies.push(alavanca);
           this.cells[i][j] = 4;
           break;
