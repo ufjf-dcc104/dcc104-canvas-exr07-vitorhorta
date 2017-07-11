@@ -2,6 +2,7 @@ function Map(rows, collumns) {
   this.SIZE = 32;
   this.playerStart = [60,60];
   this.level = 1;
+  this.shouldDraw = true;
   this.enemies = [];
   this.cells = [];
   this.secret = false;
@@ -14,12 +15,20 @@ function Map(rows, collumns) {
 }
 
 Map.prototype.desenhar = function (ctx) {
-
   for (var r = 0; r < this.cells.length; r++) {
     for (var c = 0; c < this.cells[0].length; c++) {
       if(this.cells[r][c]==1 || (this.cells[r][c] == 5 && !this.secret)){
-        ctx.fillStyle = "brown";
-        ctx.fillRect(c*this.SIZE, r*this.SIZE, this.SIZE, this.SIZE);
+          wall = new Sprite();
+          wall.imgKey = 'wall';
+          wall.SIZE = 2;
+          wall.poses = [{row: 0, col:0, frames:1, v: 0}];
+          wall.imgSizes = [-15,-20,32];
+          wall.images = this.images;
+          wall.y = (r+0.5)*this.SIZE;
+          wall.x = (c+0.5)*this.SIZE;
+          wall.desenhar(ctx)
+        // ctx.fillStyle = "brown";
+        // ctx.fillRect(c*this.SIZE, r*this.SIZE, this.SIZE, this.SIZE);
       }
     }
   }
@@ -35,7 +44,7 @@ Map.prototype.nextLevel = function(){
     this.setCells([
         [1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,1,2,0,0,0,0,1,0,0,0,3,1],
-        [1,0,2,0,0,1,0,1,0,0,0,0,1],
+        [1,6,2,0,0,1,0,1,0,0,0,0,1],
         [1,1,1,1,0,0,2,1,1,5,1,1,1],
         [1,0,0,0,0,0,0,0,0,0,2,0,1],
         [1,4,0,0,0,0,1,0,2,0,0,0,1],
@@ -100,6 +109,21 @@ Map.prototype.setCells = function (newCells) {
         case 5:
               this.cells[i][j] = 5;
               break;
+        case 6:
+              this.cells[i][j] = 6;
+            potion = new Sprite();
+            potion.imgKey = 'potion';
+            potion.SIZE = 2;
+            potion.poses = [{row: 0, col:0, frames:1, v: 1}];
+            potion.imgSizes = [-15,-15,38];
+            potion.images = this.images;
+            potion.y = (i+0.5)*this.SIZE;
+            potion.x = (j+0.5)*this.SIZE;
+            this.potion = potion;
+            this.enemies.push(potion);
+
+
+              break;
         default:
           // this.cells[i][j] = 0;
           break;
@@ -107,6 +131,10 @@ Map.prototype.setCells = function (newCells) {
     }
   }
 };
+Map.prototype.removePotion = function(){
+    var idx = this.enemies.indexOf(this.potion);
+    this.enemies.splice(idx, 1);
+}
 
 Map.prototype.mover = function (dt) {
   for (var i = 0; i < this.enemies.length; i++) {

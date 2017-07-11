@@ -11,17 +11,24 @@ var tesourosConquistados = 0;
 var minas = 0;
 var gameRunning = true;
 var fuel = 100;
+var al;
 function init(){
   canvas = document.getElementsByTagName('canvas')[0];
   canvas.width = 620;
   canvas.height = 480;
   ctx = canvas.getContext("2d");
   images = new ImageLoader();
+  al = new AudioLoader();
   images.load("pc","pc.png");
   images.load("portal","portal.png");
   images.load("switch","switch.png");
+  images.load("wall","wall.png");
+  images.load("potion","red-potion.png");
+  al.load("go_portal", "go_portal.mp3");
+  al.load("use_lever", "use_lever.mp3");
   map = new Map(Math.floor(canvas.height/40), Math.floor(canvas.width/40));
   map.images = images;
+  map.al = al;
   map.setCells([
     [1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,2,0,0,0,0,1,0,0,0,2,1],
@@ -31,15 +38,17 @@ function init(){
     [1,0,0,0,0,1,0,0,2,0,0,0,1],
     [1,0,0,2,0,1,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,0,1,1,1,1,5,1],
-    [1,0,0,0,0,0,0,0,1,0,2,0,1],
+    [1,0,0,0,0,0,0,6,1,0,2,0,1],
     [1,2,0,0,0,0,0,0,1,0,3,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1],
   ]);
+  map.al.play('use_lever',0.5);
   pc = new Sprite();
   pc.x = map.playerStart[0];
   pc.y = map.playerStart[1];
   pc.images = images;
-  initControls();
+
+    initControls();
   requestAnimationFrame(passo);
 }
 
@@ -69,9 +78,10 @@ function passo(t){
       //ctx.rotate(Math.PI/4);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       pc.mover(map, dt);
+      map.desenhar(ctx);
+
       // map.perseguir(pc);
       // map.mover(dt);
-      map.desenhar(ctx);
       pc.desenhar(ctx);
       if (map.cells[pc.gy][pc.gx] == 2) {
           console.log("Pisou ")
@@ -82,9 +92,16 @@ function passo(t){
 
       }
       if (map.cells[pc.gy][pc.gx] == 4) {
+          map.cells[pc.gy][pc.gx] = 0;
           map.showSecret();
           map.alavanca.frame = 2;
+          map.al.play('go_portal',0.5);
 
+      }
+      if (map.cells[pc.gy][pc.gx] == 6) {
+          map.removePotion();
+          map.cells[pc.gy][pc.gx] = 0;
+          fuel += 50;
       }
       if (map.level >= 3) {
           ctx.font = "20px Georgia";
